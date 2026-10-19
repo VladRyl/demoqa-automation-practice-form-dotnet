@@ -3,6 +3,7 @@ using static Microsoft.Playwright.Assertions;
 using Xunit;
 using DemoQA.Tests.Pages.Base;
 using DemoQA.Tests.Enums;
+using DemoQA.Tests.Data;
 
 namespace DemoQA.Tests.Pages;
 
@@ -12,20 +13,20 @@ public class DemoQaPage : BasePage
 
     public ILocator MainHeader => Page.Locator(".container.playgound-body h1");
     public ILocator StudentRegistrationForm => Page.Locator(".container.playgound-body h5");
-    private ILocator InputFirstName => Page.Locator("#firstName");
-    private ILocator InputLastName => Page.Locator("#lastName");
-    private ILocator InputUserEmail => Page.Locator("#userEmail");
-    private ILocator GenderWrapper => Page.Locator("#genterWrapper");
-    private ILocator MobileNumber => Page.Locator("#userNumber");
-    private ILocator DateOfBirth => Page.Locator("#dateOfBirthInput");
-    private ILocator Subjects => Page.Locator("#subjectsInput");
-    private ILocator HobbiesWrapper => Page.Locator("#hobbiesWrapper");
-    private ILocator UploadPictureInput => Page.Locator("#uploadPicture");
-    private ILocator CurrentAddress => Page.Locator("#currentAddress");
-    private ILocator StateSelect => Page.Locator("#state");
-    private ILocator CitySelect => Page.Locator("#city");
+    public ILocator InputFirstName => Page.Locator("#firstName");
+    public ILocator InputLastName => Page.Locator("#lastName");
+    public ILocator InputUserEmail => Page.Locator("#userEmail");
+    public ILocator GenderWrapper => Page.Locator("#genterWrapper");
+    public ILocator MobileNumber => Page.Locator("#userNumber");
+    public ILocator DateOfBirth => Page.Locator("#dateOfBirthInput");
+    public ILocator Subjects => Page.Locator("#subjectsInput");
+    public ILocator HobbiesWrapper => Page.Locator("#hobbiesWrapper");
+    public ILocator UploadPictureInput => Page.Locator("#uploadPicture");
+    public ILocator CurrentAddress => Page.Locator("#currentAddress");
+    public ILocator StateSelect => Page.Locator("#state");
+    public ILocator CitySelect => Page.Locator("#city");
+    public ILocator ModalContent => Page.Locator(".modal-content");
     private ILocator SubmitButton => Page.Locator("#submit");
-    private ILocator ModalContent => Page.Locator(".modal-content");
     private ILocator ModalTitle => ModalContent.Locator("#example-modal-sizes-title-lg");
     private ILocator ModalTable => ModalContent.Locator("table");
     private ILocator CloseModalButton => ModalContent.Locator("#closeLargeModal");
@@ -58,8 +59,16 @@ public class DemoQaPage : BasePage
         await DateOfBirth.ClickAsync();
         await Page.Locator(".react-datepicker__month-select").SelectOptionAsync(new SelectOptionValue { Label = month });
         await Page.Locator(".react-datepicker__year-select").SelectOptionAsync(year);
-        string dayCode = $"{int.Parse(day):03d}";
+
+        string dayCode = int.Parse(day).ToString("000");
         ILocator dayLocator = Page.Locator($".react-datepicker__day--{dayCode}:not(.react-datepicker__day--outside-month)");
+
+        var count = await dayLocator.CountAsync();
+        if (count == 0)
+        {
+            throw new ArgumentException($"Day '{day}' does not exist in {month} {year}.");
+        }
+
         await dayLocator.ClickAsync();
     }
 
@@ -121,28 +130,32 @@ public class DemoQaPage : BasePage
         }
     }
 
-    public async Task SelectStateAsync(string stateName)
+    public async Task SelectStateAsync(State state)
     {
+        string stateString = StateCityData.GetStateValue(state);
         await StateSelect.ClickAsync();
-        ILocator option = Page.GetByText(stateName, new() { Exact = true });
-        await option.ClickAsync();
+        var inputInsideState = StateSelect.Locator("input");
+        await inputInsideState.FillAsync(stateString);
+        await inputInsideState.PressAsync("Enter");
     }
 
-    public async Task SelectCityAsync(string cityName)
+    public async Task SelectCityAsync(City city)
     {
+        string cityString = StateCityData.GetCityValue(city);
         await CitySelect.ClickAsync();
-        ILocator option = Page.GetByText(cityName, new() { Exact = true });
-        await option.ClickAsync();
+        var inputInsideCity = CitySelect.Locator("input");
+        await inputInsideCity.FillAsync(cityString);
+        await inputInsideCity.PressAsync("Enter");
     }
 
-    public async Task VerifyCityIsDisabled() => await Expect(CitySelect.Locator("input")).ToBeDisabledAsync();
-    public async Task VerifyCityIsEnabled() => await Expect(CitySelect.Locator("input")).ToBeEnabledAsync();
+    public async Task VerifyCityIsDisabledAsync() => await Expect(CitySelect.Locator("input")).ToBeDisabledAsync();
+    public async Task VerifyCityIsEnabledAsync() => await Expect(CitySelect.Locator("input")).ToBeEnabledAsync();
     public async Task<string> GetSelectedCityText() => await CitySelect.Locator("[class*='singleValue']").TextContentAsync() ?? "";
 
     public async Task VerifyCityIsResetAsync()
     {
         string selectedText = await GetSelectedCityText();
-        Assert.True(selectedText == "" || selectedText == "Select City");
+        Assert.True(selectedText == "" || selectedText == "Select City", $"Expected city to be reset, but was '{selectedText}'");
     }
 
     public async Task VerifyModalVisibleAsync()
@@ -175,13 +188,13 @@ public class DemoQaPage : BasePage
 
     public async Task VerifyGenderIsCheckedAsync(Gender gender)
     {
-        ILocator radioInput = GenderWrapper.Locator($"input[value='{(int)gender}']");
+        ILocator radioInput = GenderWrapper.Locator($"input[value='{gender}']");
         await Expect(radioInput).ToBeCheckedAsync();
     }
 
     public async Task VerifyGenderIsNotCheckedAsync(Gender gender)
     {
-        ILocator radioInput = GenderWrapper.Locator($"input[value='{(int)gender}']");
+        ILocator radioInput = GenderWrapper.Locator($"input[value='{gender}']");
         await Expect(radioInput).ToBeCheckedAsync(new() { Checked = false });
     }
 
