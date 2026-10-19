@@ -1,0 +1,12 @@
+name: demoqa-automation-practice-form
+
+services:
+  ui-tests:
+    image: demoqa-automation-practice-form:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+    init: true
+    ipc: host
+    volumes:
+      - ./allure-results:/src/allure-results

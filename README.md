@@ -5,10 +5,7 @@
 The container uses the Playwright .NET image matching the `Microsoft.Playwright` package version in the test project.
 
 ```bash
-docker build -t demoqa-automation-practice-form .
-docker run --rm --init --ipc=host \
-  -v "$PWD/allure-results:/src/allure-results" \
-  demoqa-automation-practice-form
+docker compose run --build --rm ui-tests
 ```
 
 Test results are written to the host's `allure-results` directory. To build and open the HTML report locally, install the Allure CLI and run:
@@ -20,7 +17,7 @@ allure open allure-report
 
 ## GitHub Actions
 
-The `UI tests and Allure report` workflow runs on pushes, pull requests, and manual dispatches. Each run uploads two artifacts:
+The `UI tests and Allure report` workflow uses Docker Compose to build and run the tests on GitHub Actions for pushes, pull requests, and manual dispatches. Each run uploads two artifacts:
 
 - `allure-results` — raw test data
 - `allure-report` — generated HTML report
