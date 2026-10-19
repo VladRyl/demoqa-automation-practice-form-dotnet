@@ -1,0 +1,7 @@
+.git
+.github
+**/bin
+**/obj
+TestResults
+allure-results
+allure-report

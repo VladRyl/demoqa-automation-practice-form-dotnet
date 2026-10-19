@@ -5,4 +5,5 @@ obj/
 **/bin/
 **/obj/
 TestResults/
+allure-results/
 .vscode/

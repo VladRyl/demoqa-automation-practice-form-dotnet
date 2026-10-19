@@ -1,0 +1,69 @@
+name: UI tests and Allure report
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Set up Node.js for Allure CLI
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Allure CLI
+        run: npm install --global allure
+
+      - name: Restore dependencies
+        run: dotnet restore DemoQA.sln
+
+      - name: Build test project
+        run: dotnet build DemoQA.sln --no-restore --configuration Debug
+
+      - name: Install Playwright Chromium
+        run: pwsh DemoQA.Tests/bin/Debug/net10.0/playwright.ps1 install --with-deps chromium
+
+      - name: Run tests
+        run: dotnet test DemoQA.sln --no-restore --no-build --settings .runsettings --configuration Debug --logger "console;verbosity=normal"
+
+      - name: Generate Allure HTML report
+        if: always()
+        run: |
+          if [ -d allure-results ] && find allure-results -type f -name '*-result.json' -print -quit | grep -q .; then
+            allure generate allure-results --output allure-report
+          else
+            echo "No Allure result files were generated."
+          fi
+
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload Allure HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report/
+          if-no-files-found: warn
+          retention-days: 14

@@ -9,15 +9,16 @@ using Allure.Net.Commons;
 
 namespace DemoQA.Tests.Tests;
 
+[AllureEpic("Student Registration")]
+[AllureFeature("Practice Form")]
 [TestCaseOrderer(PriorityOrderer.Name, PriorityOrderer.Assembly)]
 public class DemoQaTests : BaseTest
 {
     private static bool _isFirstTestFailed = false;
 
     [Fact]
-    [AllureEpic("Student Registration")]
-    [AllureFeature("Practice Form")]
     [Priority(1)]
+    [AllureStory("Practice form page loads")]
     public async Task OpenDemoQaPage()
     {
         try
@@ -35,6 +36,7 @@ public class DemoQaTests : BaseTest
 
     [Fact]
     [Priority(2)]
+    [AllureStory("Complete registration form submission")]
     public async Task AllFormsFilledCorrectly()
     {
         if (_isFirstTestFailed)
@@ -72,6 +74,7 @@ public class DemoQaTests : BaseTest
 
     [Fact]
     [Priority(2)]
+    [AllureStory("Submit form with required fields only")]
     public async Task MandatoryFieldsFilledCorrectly()
     {
         if (_isFirstTestFailed)
@@ -100,6 +103,7 @@ public class DemoQaTests : BaseTest
 
     [Fact]
     [Priority(2)]
+    [AllureStory("Empty form validation")]
     public async Task EmptyAllFields()
     {
         if (_isFirstTestFailed)
@@ -127,6 +131,7 @@ public class DemoQaTests : BaseTest
 
     [Fact]
     [Priority(2)]
+    [AllureStory("Required field validation feedback")]
     public async Task ChangeColor()
     {
         if (_isFirstTestFailed)
@@ -171,6 +176,7 @@ public class DemoQaTests : BaseTest
 
     [Theory]
     [Priority(2)]
+    [AllureStory("Valid name input")]
     [MemberData(nameof(NameData.ValidNames), MemberType = typeof(NameData))]
     public async Task ValidNameRegex(string firstName, string lastName)
     {
@@ -188,6 +194,7 @@ public class DemoQaTests : BaseTest
 
     [Theory]
     [Priority(2)]
+    [AllureStory("Invalid name input")]
     [MemberData(nameof(NameData.InvalidNames), MemberType = typeof(NameData))]
     public async Task InvalidNameRegex(string firstName, string lastName)
     {
@@ -205,6 +212,7 @@ public class DemoQaTests : BaseTest
 
     [Theory]
     [Priority(2)]
+    [AllureStory("Valid email input")]
     [MemberData(nameof(EmailData.ValidEmails), MemberType = typeof(EmailData))]
     public async Task ValidEmailRegex(string validEmail)
     {
@@ -220,6 +228,7 @@ public class DemoQaTests : BaseTest
 
     [Theory]
     [Priority(2)]
+    [AllureStory("Invalid email input")]
     [MemberData(nameof(EmailData.InvalidEmails), MemberType = typeof(EmailData))]
     public async Task InvalidEmailRegex(string invalidEmail)
     {
@@ -235,6 +244,7 @@ public class DemoQaTests : BaseTest
 
     [Theory]
     [Priority(2)]
+    [AllureStory("Gender selection")]
     [InlineData(Gender.Male)]
     [InlineData(Gender.Female)]
     [InlineData(Gender.Other)]
@@ -251,6 +261,7 @@ public class DemoQaTests : BaseTest
 
     [Theory]
     [Priority(2)]
+    [AllureStory("Valid phone number input")]
     [MemberData(nameof(PhoneData.ValidPhoneNumbers), MemberType = typeof(PhoneData))]
     public async Task ValidPhoneNumber(string validPhone)
     {
@@ -266,6 +277,7 @@ public class DemoQaTests : BaseTest
 
     [Theory]
     [Priority(2)]
+    [AllureStory("Invalid phone number input")]
     [MemberData(nameof(PhoneData.InvalidPhoneNumbers), MemberType = typeof(PhoneData))]
     public async Task InvalidPhoneNumber(string invalidPhone)
     {
@@ -281,6 +293,7 @@ public class DemoQaTests : BaseTest
 
     [Theory]
     [Priority(2)]
+    [AllureStory("Date of birth selection")]
     [MemberData(nameof(DateData.DatePicker), MemberType = typeof(DateData))]
     public async Task SelectDatesViaPicker(string day, string month, string year, string expectedValue)
     {
@@ -295,6 +308,7 @@ public class DemoQaTests : BaseTest
 
     [Fact]
     [Priority(2)]
+    [AllureStory("Reject invalid calendar date")]
     public async Task InvalidFebruary31_ThrowsException()
     {
         if (_isFirstTestFailed)
@@ -311,6 +325,7 @@ public class DemoQaTests : BaseTest
 
     [Fact]
     [Priority(2)]
+    [AllureStory("Remove selected subjects")]
     public async Task SubjectsRemoveBadge()
     {
         if (_isFirstTestFailed)
@@ -327,6 +342,7 @@ public class DemoQaTests : BaseTest
 
     [Fact]
     [Priority(2)]
+    [AllureStory("Reject unknown subject")]
     public async Task IncorrectBadge()
     {
         if (_isFirstTestFailed)
@@ -340,6 +356,7 @@ public class DemoQaTests : BaseTest
 
     [Fact]
     [Priority(2)]
+    [AllureStory("Toggle selected hobbies")]
     public async Task UnselectHobby()
     {
         if (_isFirstTestFailed)
@@ -356,6 +373,7 @@ public class DemoQaTests : BaseTest
 
     [Theory]
     [Priority(2)]
+    [AllureStory("Upload supported image formats")]
     [MemberData(nameof(FailData.ValidFileNames), MemberType = typeof(FailData))]
     public async Task UploadValidImageFormats(string fileName)
     {
@@ -391,6 +409,7 @@ public class DemoQaTests : BaseTest
 
     [Theory]
     [Priority(2)]
+    [AllureStory("Reject unsupported image formats")]
     [MemberData(nameof(FailData.InvalidFileNames), MemberType = typeof(FailData))]
     public async Task UploadInvalidFileFormats(string fileName)
     {
@@ -423,6 +442,7 @@ public class DemoQaTests : BaseTest
 
     [Fact]
     [Priority(2)]
+    [AllureStory("Preserve special characters in address")]
     public async Task CurrentAddress_SpecialCharacters_PreservesValue()
     {
         if (_isFirstTestFailed)
@@ -443,6 +463,7 @@ public class DemoQaTests : BaseTest
 
     [Fact]
     [Priority(2)]
+    [AllureStory("City is disabled before state selection")]
     public async Task City_DisabledByDefault()
     {
         if (_isFirstTestFailed)
@@ -456,6 +477,7 @@ public class DemoQaTests : BaseTest
 
     [Theory]
     [Priority(2)]
+    [AllureStory("Select state and matching city")]
     [MemberData(nameof(StateCityData.StateCityMap), MemberType = typeof(StateCityData))]
     public async Task SelectStateAndCity_Cascade(State state, City[] cities)
     {
@@ -486,6 +508,7 @@ public class DemoQaTests : BaseTest
 
     [Fact]
     [Priority(2)]
+    [AllureStory("Change state and choose its city")]
     public async Task ChangeState_ResetsCity()
     {
         if (_isFirstTestFailed)
@@ -502,6 +525,7 @@ public class DemoQaTests : BaseTest
 
     [Fact]
     [Priority(2)]
+    [AllureStory("Submit with state and no city")]
     public async Task SelectOnlyState_Cascade()
     {
     if (_isFirstTestFailed)
@@ -524,6 +548,7 @@ public class DemoQaTests : BaseTest
 
     [Fact]
     [Priority(2)]
+    [AllureStory("Reset city when state changes")]
     public async Task City_ResetsOnStateChange()
     {
         if (_isFirstTestFailed)
