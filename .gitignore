@@ -6,4 +6,5 @@ obj/
 **/obj/
 TestResults/
 allure-results/
+allure-report/
 .vscode/
