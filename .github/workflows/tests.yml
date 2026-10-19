@@ -2,11 +2,16 @@ name: UI tests and Allure report
 
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: allure-pages-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   run_ui_tests:
@@ -27,6 +32,7 @@ jobs:
         run: docker compose build ui-tests
 
       - name: Run tests with Docker Compose
+        id: run_tests
         run: |
           mkdir -p allure-results
           docker compose run --rm ui-tests
@@ -67,3 +73,48 @@ jobs:
           path: allure-report/
           if-no-files-found: warn
           retention-days: 14
+
+      - name: Upload Pages artifact
+        if: always() && github.event_name != 'pull_request' && hashFiles('allure-report/index.html') != ''
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: allure-report
+
+      - name: Generate Job Summary
+        if: always()
+        env:
+          TEST_OUTCOME: ${{ steps.run_tests.outcome }}
+        run: |
+          echo "## 📊 Test Execution Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Environment:** `ubuntu-latest` (Docker, Playwright .NET, Chromium)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Trigger Event:** `${{ github.event_name }}` on ref `${{ github.ref_name }}`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Author:** @${{ github.actor }}" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$TEST_OUTCOME" = "success" ]; then
+            echo "- **Execution Status:** ✅ **Passed**" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- **Execution Status:** ❌ **Failed** (`$TEST_OUTCOME`)" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 🔗 Reporting" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "- **Allure report:** Available as the `allure-report` artifact after this run." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- **Allure report:** [Open GitHub Pages](${{ format('https://{0}.github.io/{1}/', github.repository_owner, github.event.repository.name) }})" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  deploy_report:
+    name: "🚀 Publish Allure report to GitHub Pages"
+    if: always() && github.event_name != 'pull_request' && needs.run_ui_tests.result != 'cancelled'
+    needs: run_ui_tests
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

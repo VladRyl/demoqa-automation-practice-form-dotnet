@@ -17,9 +17,11 @@ allure open allure-report
 
 ## GitHub Actions
 
-The `UI tests and Allure report` workflow uses Docker Compose to build and run the tests on GitHub Actions for pushes, pull requests, and manual dispatches. Each run uploads two artifacts:
+The `UI tests and Allure report` workflow uses Docker Compose to build and run the tests on GitHub Actions for pushes to `main`, pull requests, and manual dispatches. Each run uploads two artifacts:
 
 - `allure-results` — raw test data
 - `allure-report` — generated HTML report
 
-Download either artifact from the completed workflow run in the repository's **Actions** tab. The report is generated even when tests fail, so failures remain inspectable.
+Download either artifact from the completed workflow run in the repository's **Actions** tab. Runs on `main` also publish the HTML report to GitHub Pages, including when tests fail, so failures remain inspectable. Pull requests upload the artifacts but do not publish a Pages deployment.
+
+Enable Pages once in the repository settings: open **Settings → Pages** and select **GitHub Actions** as the build and deployment source. After the first successful deployment, GitHub shows the report URL in the `github-pages` environment and the Actions deployment summary.
