@@ -17,6 +17,8 @@ allure open allure-report
 
 ## GitHub Actions
 
+**Latest Allure report:** [View the report on GitHub Pages](https://vladryl.github.io/demoqa-automation-practice-form-dotnet/)
+
 The `UI tests and Allure report` workflow uses Docker Compose to build and run the tests on GitHub Actions for pushes to `main`, pull requests, and manual dispatches. Each run uploads two artifacts:
 
 - `allure-results` — raw test data
